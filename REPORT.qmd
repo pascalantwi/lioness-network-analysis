@@ -1,0 +1,37 @@
+---
+title: "Genes Pathway analysis"
+format: html
+bibliography: references.bib
+---
+
+#### Methods
+
+This section summarizes the sample-specific network estimation approach described by [@kuijjer2019estimating]:
+
+In complex biological systems, a single gene or pathway often cannot fully explain a phenotype. That is why the authors proposed an approach, LIONESS, to model these relationships as networks. An aggregate network represents a single estimate of the likelihood of each interaction, but it fails to capture population heterogeneity. A sample-specific network, by contrast, estimates the relationships within an individual biological network as well as the relationships between multiple different networks. In this approach, genes represent the nodes, and edges represent the interactions between genes.
+
+##### Estimation of Aggregate Networks
+
+In this approach, they treat the aggregate network as the average of the individual component networks from each sample in the input set. The weight of an edge between two nodes in the aggregate network reflects this average across all samples. They obtain the edge value by calculating the correlation between two genes, pooling all patients within a group together, so that the edge value e(i,j) represents a single correlation coefficient summarizing that gene pair's relationship across the whole group. Edge thickness reflects the size of the difference in this value between the two groups: a larger group difference produces a thicker line.
+
+##### Sample-specific Network
+
+A sample-specific network shows the unique network of one patient, capturing differences between individuals that a single group-wide network cannot show on its own. To get the edge value for one patient, they build the group network twice, using everyone: once with all patients included, and once with all patients included except the one of interest. The difference between these two networks shows how much that one patient was contributing. This difference is then multiplied by the total number of patients, which corrects for the fact that one person's individual contribution becomes diluted as the group grows larger, and added back to the second network, giving the final edge value for that one patient. This is repeated for every patient and every gene pair, giving each person their own complete network.
+
+Once every patient has their own edge value for every gene pair, these values are grouped by outcome. Genes are used to construct the network, and the most significant relationships between them are selected to build the final diagram, with each gene drawn as a node and each significant relationship drawn as a connecting edge. Edge color shows which group had the stronger relationship for that pair, and edge thickness reflects how large the difference between the two groups was. Node color separately shows whether that gene's own expression level differed between the two groups.
+
+#### Results
+
+CD44 emerges as the dominant hub, connecting to nine other genes (@fig-interferon). However, only two of these connections are thick, CD44-IFIT5 and CD44-PLCG1, showing a strong relation between these gene pairs specifically, a much larger difference between groups than CD44's other seven connections. Edge thickness shows how strong this relation is, while edge color shows which group it favors. The most compelling structure in (@fig-interferon) extends from this hub through IFIT5 to NUP160. The CD44-IFIT5 edge is blue, showing a strong relation favoring patients whose cancer did not spread, while the very next edge, IFIT5-NUP160, is red, showing an equally strong relation but favoring patients whose cancer did spread, reversing direction within a short chain. A separate but related signal appears at MID1-IFNA14, one of the thickest edges in the network and colored blue, again showing a strong relation favoring non-spread patients, echoing the same direction as CD44-IFIT5.
+
+
+Also, (@fig-interferon) HLA-DPB1 shows the deepest blue in the figure, meaning it is far more active in patients whose cancer did not spread. HLA-E, HLA-F, IRF1, IFNA5, and CIITA show a similar but weaker pattern in lighter purple. At the opposite end, UBE2N appears in the deepest red, far more active in patients whose cancer spread, followed by NCAM1, ADAR, and NUP54 in medium red, and paler salmon genes like PLCG1 and NUP155 showing only slight differences. Most other genes, including PIAS1, STAT1, and MID1, appear white, meaning their own expression barely differs even within significant network relationships.
+
+```{r}
+#| label: fig-interferon
+#| fig-cap: "Differential network edges within the Interferon Signaling pathway. Network visualization of the 50 gene pairs with the most significant differences in their estimated correlation between patients whose cancer spread (yes) and patients whose cancer did not spread (no). Red edges are stronger in patients whose cancer spread; blue edges are stronger in patients whose cancer did not spread. Thicker edges represent larger differences in edge weight between the two groups. Nodes (genes) are colored based on the t-statistic from a differential expression analysis, with node color indicating higher expression in patients whose cancer spread (red) or did not spread (blue)."
+#| echo: false
+
+knitr::include_graphics(file.path("output", "figures",
+  "R-HSA-913531_REACTOME_INTERFERON_SIGNALING_network.png"))
+```
