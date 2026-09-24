@@ -1,11 +1,10 @@
-#Packages 
-install.packages("BiocManager")
-BiocManager::install(c("GEOquery", "lumi"))
-BiocManager::install("illuminaHumanv2.db")
-install.packages("devtools")
-install.packages("pheatmap")
-devtools::install_github("kuijjerlab/lionessR")
-BiocManager::install(c("msigdb", "ExperimentHub", "GSEABase", "clusterProfiler"))
+# #Packages 
+# install.packages("BiocManager")
+# BiocManager::install(c("GEOquery", "lumi"))
+# BiocManager::install("illuminaHumanv2.db")
+# install.packages("devtools")
+# devtools::install_github("kuijjerlab/lionessR")
+# BiocManager::install(c("msigdb", "ExperimentHub", "GSEABase", "clusterProfiler", "ComplexHeatmap"))
 
 
 # Libraries 
@@ -18,7 +17,7 @@ library(lionessR)
 library(igraph)
 library(reshape2)
 library(limma)
-library(pheatmap)
+library(ComplexHeatmap)
 library(igraph)
 library(msigdb)
 library(ExperimentHub)
