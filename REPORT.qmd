@@ -1,6 +1,8 @@
 ---
 title: "Genes Pathway analysis"
-format: html
+format:
+  html:
+    self-contained: true
 bibliography: references.bib
 ---
 
@@ -12,11 +14,23 @@ In complex biological systems, a single gene or pathway often cannot fully expla
 
 ##### Estimation of Aggregate Networks
 
-In this approach, they treat the aggregate network as the average of the individual component networks from each sample in the input set. The weight of an edge between two nodes in the aggregate network reflects this average across all samples. They obtain the edge value by calculating the correlation between two genes, pooling all patients within a group together, so that the edge value e(i,j) represents a single correlation coefficient summarizing that gene pair's relationship across the whole group. Edge thickness reflects the size of the difference in this value between the two groups: a larger group difference produces a thicker line.
+In this approach, they treat the aggregate network as the average of the individual component networks from each sample in the input set. The weight of an edge between two nodes in the aggregate network reflects this average across all samples. Formally, the aggregate network edge weight between two genes $i$ and $j$, estimated from a population of $N$ samples, is defined as:
+
+$$
+e_{ij}^{(\alpha)} = \sum_{s=1}^{N} w_s^{(\alpha)} e_{ij}^{(s)}, \quad \text{where} \sum_{s=1}^{N} w_s^{(\alpha)} = 1
+$$ {#eq-aggregate}
+
+where $e_{ij}^{(\alpha)}$ is the aggregate network edge weight between genes $i$ and $j$ using all $N$ samples, $e_{ij}^{(s)}$ is the hidden, sample-specific edge weight for an individual sample $s$, and $w_s^{(\alpha)}$ is the relative contribution of sample $s$ to the aggregate model. When all samples are weighted equally, $w_s^{(\alpha)} = 1/N$ for every sample. They obtain the edge value by calculating the relationship between two genes, pooling all patients within a group together, so that the edge value represents a single relationship summarizing that gene pair's relationship across the whole group. Edge thickness reflects the size of the difference in this value between the two groups: a larger group difference produces a thicker line.
 
 ##### Sample-specific Network
 
-A sample-specific network shows the unique network of one patient, capturing differences between individuals that a single group-wide network cannot show on its own. To get the edge value for one patient, they build the group network twice, using everyone: once with all patients included, and once with all patients included except the one of interest. The difference between these two networks shows how much that one patient was contributing. This difference is then multiplied by the total number of patients, which corrects for the fact that one person's individual contribution becomes diluted as the group grows larger, and added back to the second network, giving the final edge value for that one patient. This is repeated for every patient and every gene pair, giving each person their own complete network.
+A sample-specific network shows the unique network of one patient, capturing differences between individuals that a single group-wide network cannot show on its own. To get the edge value for one patient $q$, they build the group network twice, using everyone: once with all patients included, and once with all patients included except $q$. The difference between these two networks shows how much that one patient was contributing. This difference is then scaled and added back to the second network, giving the final edge value for that one patient:
+
+$$
+e_{ij}^{(q)} = \frac{1}{w_q^{(\alpha)}} \left( e_{ij}^{(\alpha)} - e_{ij}^{(\alpha - q)} \right) + e_{ij}^{(\alpha - q)}
+$$ {#eq-lioness}
+
+where $e_{ij}^{(q)}$ is the estimated sample-specific edge weight between genes $i$ and $j$ for patient $q$, $e_{ij}^{(\alpha)}$ is the aggregate network edge weight computed from all $N$ patients, $e_{ij}^{(\alpha - q)}$ is the aggregate network edge weight computed from all patients except $q$, and $w_q^{(\alpha)}$ is patient $q$'s relative contribution weight to the full aggregate network. Under equal sample weighting, $w_q^{(\alpha)} = 1/N$, so the scaling factor $1/w_q^{(\alpha)}$ becomes $N$, the total number of patients, which is the form used in this analysis. This is repeated for every patient and every gene pair, giving each person their own complete network.
 
 Once every patient has their own edge value for every gene pair, these values are grouped by outcome. Genes are used to construct the network, and the most significant relationships between them are selected to build the final diagram, with each gene drawn as a node and each significant relationship drawn as a connecting edge. Edge color shows which group had the stronger relationship for that pair, and edge thickness reflects how large the difference between the two groups was. Node color separately shows whether that gene's own expression level differed between the two groups.
 
@@ -29,9 +43,11 @@ Also, (@fig-interferon) HLA-DPB1 shows the deepest blue in the figure, meaning i
 
 ```{r}
 #| label: fig-interferon
-#| fig-cap: "Differential network edges within the Interferon Signaling pathway. Network visualization of the 50 gene pairs with the most significant differences in their estimated correlation between patients whose cancer spread (yes) and patients whose cancer did not spread (no). Red edges are stronger in patients whose cancer spread; blue edges are stronger in patients whose cancer did not spread. Thicker edges represent larger differences in edge weight between the two groups. Nodes (genes) are colored based on the t-statistic from a differential expression analysis, with node color indicating higher expression in patients whose cancer spread (red) or did not spread (blue)."
+#| fig-cap: "Differential network edges within the Interferon Signaling pathway. Network visualization of the 50 gene pairs with the most significant differences in their estimated relationship between patients whose cancer spread (yes) and patients whose cancer did not spread (no). Red edges are stronger in patients whose cancer spread; blue edges are stronger in patients whose cancer did not spread. Thicker edges represent larger differences in edge weight between the two groups. Nodes (genes) are colored based on the t-statistic from a differential expression analysis, with node color indicating higher expression in patients whose cancer spread (red) or did not spread (blue)."
 #| echo: false
 
 knitr::include_graphics(file.path("output", "figures",
   "R-HSA-913531_REACTOME_INTERFERON_SIGNALING_network.png"))
 ```
+
+
